@@ -1,0 +1,23 @@
+
+<div class="border border-2 border-black rounded-1 h-[10rem] w-[20rem]">  
+  <div id="cuaca-sekarang" class="flex items-center gap-3 w-full"></div>
+</div>
+
+<script>
+  async function getCuaca() {
+    const res = await fetch("bmkg/cuaca");
+    const data = await res.json();
+    const item = data.prakiraan[0];
+
+    document.getElementById("cuaca-sekarang").innerHTML = `
+      <img src="${item.ikon}" alt="${item.cuaca}" class="w-16 h-16 object-contain">
+      <div class="text-sm leading-tight">
+        <strong>${item.waktu}</strong><br>
+        Cuaca: ${item.cuaca}
+      </div>
+    `;
+  }
+
+  getCuaca();
+  setInterval(getCuaca, 3600000);
+</script>

@@ -1,0 +1,19 @@
+<div class="border border-2 border-black rounded-1 h-[10rem] w-[20rem]">
+  pm25    
+  <div id="pm25" class="flex items-center gap-3 w-full">Loading...</div>
+</div>
+
+<script>
+    async function getData() {
+      const res = await fetch("aqicn/tandes");
+      const data = await res.json();
+
+      if (!data.error) {
+        document.getElementById("pm25").innerText = 
+          data.pm25 ? data.pm25 + " µg/m³" : "N/A";
+      }
+    }
+
+    getData();
+    setInterval(getData, 3600000); // refresh tiap 1 jam
+</script>

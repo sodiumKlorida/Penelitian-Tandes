@@ -1,0 +1,36 @@
+<div class="border border-2 border-black rounded-1 h-[10rem] w-[20rem]">  
+  <div id="tips-aktivitas" class="p-2 text-sm"></div>
+</div>
+
+<script>
+  async function getTips() {
+    const res = await fetch("aqicn/tandes");
+    const data = await res.json();
+
+    let tips = "Nikmati hari Anda dengan aktivitas normal 👍";
+
+    if (!data.error) {
+      const aqi = data.aqi;
+
+      if (aqi <= 50) {
+        tips = "Kualitas udara baik 🌱. Cocok untuk olahraga luar ruangan.";
+      } else if (aqi <= 100) {
+        tips = "Kualitas udara sedang 😐. Masih aman, tetap jaga kesehatan.";
+      } else if (aqi <= 150) {
+        tips = "Kualitas udara tidak sehat bagi kelompok sensitif ⚠️. Batasi aktivitas luar ruangan.";
+      } else if (aqi <= 200) {
+        tips = "Udara tidak sehat 🚫. Gunakan masker jika keluar rumah.";
+      } else {
+        tips = "Udara berbahaya ☠️. Sebaiknya tetap di dalam ruangan.";
+      }
+    }
+
+    document.getElementById("tips-aktivitas").innerHTML = `
+      <strong>Tips Hari Ini:</strong><br>
+      ${tips}
+    `;
+  }
+
+  getTips();
+  setInterval(getTips, 3600000); // update tiap 1 jam
+</script>
