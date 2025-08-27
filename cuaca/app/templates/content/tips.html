@@ -1,36 +1,60 @@
-<div class="border border-2 border-black rounded-1 h-[10rem] w-[20rem]">  
-  <div id="tips-aktivitas" class="p-2 text-sm"></div>
+<div class="bg-gray-100 rounded-2xl shadow-md border border-gray-300 p-4 w-80 h-40 flex items-center justify-center">
+  <div id="tips-aktivitas" class="text-gray-700 text-base font-medium"></div>
 </div>
 
 <script>
   async function getTips() {
-    const res = await fetch("aqicn/tandes");
-    const data = await res.json();
-
-    let tips = "Nikmati hari Anda dengan aktivitas normal 👍";
-
-    if (!data.error) {
-      const aqi = data.aqi;
-
-      if (aqi <= 50) {
-        tips = "Kualitas udara baik 🌱. Cocok untuk olahraga luar ruangan.";
-      } else if (aqi <= 100) {
-        tips = "Kualitas udara sedang 😐. Masih aman, tetap jaga kesehatan.";
-      } else if (aqi <= 150) {
-        tips = "Kualitas udara tidak sehat bagi kelompok sensitif ⚠️. Batasi aktivitas luar ruangan.";
-      } else if (aqi <= 200) {
-        tips = "Udara tidak sehat 🚫. Gunakan masker jika keluar rumah.";
-      } else {
-        tips = "Udara berbahaya ☠️. Sebaiknya tetap di dalam ruangan.";
+    try {
+      // Panggil kedua API
+      const resAqi = await fetch('/aqicn/tandes')
+      const resCuaca = await fetch('/bmkg/cuaca')
+  
+      const dataAqi = await resAqi.json()
+      const dataCuaca = await resCuaca.json()
+  
+      console.log('AQI:', dataAqi)
+      console.log('Cuaca:', dataCuaca)
+  
+      let tips = 'Nikmati hari Anda 👍'
+  
+      if (!dataAqi.error && dataCuaca.prakiraan && dataCuaca.prakiraan.length > 0) {
+        const aqi = dataAqi.aqi
+        const cuaca = dataCuaca.prakiraan[0].cuaca.toLowerCase()
+  
+        // Kategori AQI
+        let kondisiUdara = ''
+        if (aqi <= 50) kondisiUdara = 'baik'
+        else if (aqi <= 100) kondisiUdara = 'sedang'
+        else if (aqi <= 150) kondisiUdara = 'tidak sehat sensitif'
+        else if (aqi <= 200) kondisiUdara = 'tidak sehat'
+        else kondisiUdara = 'berbahaya'
+  
+        // Tentukan tips dengan kombinasi
+        if (cuaca.includes('hujan') && aqi > 100) {
+          tips = 'Hujan & udara kurang sehat 🌧️😷. Sebaiknya di rumah saja.'
+        } else if (cuaca.includes('hujan')) {
+          tips = 'Sedang hujan 🌧️. Gunakan jas hujan & batasi aktivitas luar.'
+        } else if (cuaca.includes('cerah') && aqi <= 50) {
+          tips = 'Cerah & udara bersih 🌞🌱. Cocok olahraga di luar.'
+        } else if (cuaca.includes('cerah') && aqi > 100) {
+          tips = 'Cerah tapi udara tidak sehat 😷☀️. Gunakan masker jika keluar.'
+        } else if (aqi > 150) {
+          tips = 'Udara tidak sehat 🚫. Kurangi aktivitas di luar ruangan.'
+        } else {
+          tips = `Kondisi cuaca ${cuaca} & udara ${kondisiUdara}. Tetap jaga kesehatan.`
+        }
       }
+  
+      document.getElementById('tips-aktivitas').innerHTML = `
+          <strong>Tips Hari Ini:</strong><br>
+          ${tips}
+        `
+    } catch (err) {
+      console.error('Gagal ambil data:', err)
+      document.getElementById('tips-aktivitas').innerHTML = '⚠️ Gagal memuat tips.'
     }
-
-    document.getElementById("tips-aktivitas").innerHTML = `
-      <strong>Tips Hari Ini:</strong><br>
-      ${tips}
-    `;
   }
-
-  getTips();
-  setInterval(getTips, 3600000); // update tiap 1 jam
+  
+  getTips()
+  setInterval(getTips, 3600000) // update tiap 1 jam
 </script>

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, render_template
 import requests
 
 bmkg_bp = Blueprint("bmkg", __name__)
@@ -41,3 +41,29 @@ def cuaca():
         },
         "prakiraan": prakiraan
     })
+    
+@bmkg_bp.route("/cuaca/prakiraan")
+def cuaca_prakiraan():
+    # ADM4 = "35.78.14.1007"
+    url = f"https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4={ADM4}"
+    response = requests.get(url).json()
+
+    prakiraan = []
+    if "data" in response:
+        cuaca = response["data"][0]["cuaca"]
+        for hari in cuaca:  # setiap hari
+            for item in hari:  # setiap jam
+                prakiraan.append({
+                    "local_datetime": item.get("local_datetime"),
+                    "suhu": item.get("t"),
+                    "kelembapan": item.get("hu"),
+                    "cuaca": item.get("weather_desc"),
+                    "ikon": item.get("image"),
+                    "angin": f"{item.get('wd')} {item.get('ws')} km/jam",
+                    "awan": f"{item.get('tcc')}%",
+                    "jarak_pandang": item.get("vs_text"),
+                })
+
+    lokasi = response.get("lokasi", {})
+    
+    return render_template("content/prakiraan_cuaca.html", prakiraan=prakiraan, lokasi=lokasi)
