@@ -13,14 +13,15 @@ def tandes():
 
     if response["status"] == "ok":
         data = {
-            "kota": response["data"]["city"]["name"],
             "aqi": response["data"]["aqi"],
             "pm25": response["data"]["iaqi"].get("pm25", {}).get("v", None),
-            "pm10": response["data"]["iaqi"].get("pm10", {}).get("v", None),
-            "co": response["data"]["iaqi"].get("co", {}).get("v", None),
-            "suhu": response["data"]["iaqi"].get("t", {}).get("v", None),
-            "kelembapan": response["data"]["iaqi"].get("h", {}).get("v", None),
-            "waktu": response["data"]["time"]["s"]
+            
+            # "kota": response["data"]["city"]["name"],
+            # "pm10": response["data"]["iaqi"].get("pm10", {}).get("v", None),
+            # "co": response["data"]["iaqi"].get("co", {}).get("v", None),
+            # "suhu": response["data"]["iaqi"].get("t", {}).get("v", None),
+            # "kelembapan": response["data"]["iaqi"].get("h", {}).get("v", None),
+            # "waktu": response["data"]["time"]["s"]
         }
         return jsonify(data)
     else:
