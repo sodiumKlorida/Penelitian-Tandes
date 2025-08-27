@@ -11,11 +11,13 @@ ADM4 = "35.78.14.1007"
 def cuaca():
     # URL API BMKG sesuai dengan ADM4
     url = f"https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4={ADM4}"
+    
     # Ambil data JSON langsung dari API BMKG
     response = requests.get(url).json()
 
     # Ambil data lokasi dari JSON
     lokasi = response["lokasi"]
+    
     # Siapkan list kosong untuk menampung semua prakiraan
     prakiraan = []
 
