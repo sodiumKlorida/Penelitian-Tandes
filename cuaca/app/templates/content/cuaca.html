@@ -1,25 +1,33 @@
-<!--
-  <div class="border border-2 border-black rounded-1 h-[10rem] w-[20rem]"> 
--->
 <div class="bg-gray-100 rounded-2xl shadow-md border border-gray-300 p-4 w-80 h-40 flex items-center justify-center"> 
-  <div id="cuaca-sekarang" class="flex items-center gap-3 w-full text-gray-700 text-base font-medium"></div>
+  <div id="cuaca-sekarang" class="flex items-center gap-3 w-full text-gray-700 text-sm font-medium">
+    Loading...
+  </div>
 </div>
 
 <script>
   async function getCuaca() {
-    const res = await fetch("bmkg/cuaca");
-    const data = await res.json();
-    const item = data.prakiraan[0];
+    try {
+      const res = await fetch("/bmkg/cuaca");
+      const data = await res.json();
 
-    document.getElementById("cuaca-sekarang").innerHTML = `
-      <img src="${item.ikon}" alt="${item.cuaca}" class="w-16 h-16 object-contain">
-      <div class="text-sm leading-tight">
-        <strong>${item.waktu}</strong><br>
-        Cuaca: ${item.cuaca}
-      </div>
-    `;
+      if (data.prakiraan.length > 0) {
+        const item = data.prakiraan[0]; // ambil prakiraan pertama
+        document.getElementById("cuaca-sekarang").innerHTML = `
+          <img src="${item.ikon}" alt="${item.cuaca}" class="w-16 h-16 object-contain">
+          <div class="leading-tight">
+            <div class="font-semibold">${item.cuaca}</div>
+            <div class="text-xs text-gray-600">${item.waktu}</div>
+            <div class="text-xs">🌡️ ${item.suhu}°C | 💧 ${item.kelembapan}%</div>
+          </div>
+        `;
+      } else {
+        document.getElementById("cuaca-sekarang").innerText = "Data tidak tersedia";
+      }
+    } catch (err) {
+      document.getElementById("cuaca-sekarang").innerText = "Gagal mengambil data";
+    }
   }
 
   getCuaca();
-  setInterval(getCuaca, 3600000);
+  setInterval(getCuaca, 3600000); // refresh tiap 1 jam
 </script>
