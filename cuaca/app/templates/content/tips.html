@@ -8,7 +8,7 @@
       // Ambil data AQI & Cuaca
       const [resAqi, resCuaca] = await Promise.all([
         fetch("/aqicn/tandes"),
-        fetch("/bmkg/cuaca"),
+        fetch("/prakiraan"),
       ]);
 
       const dataAqi = await resAqi.json();

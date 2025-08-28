@@ -7,7 +7,7 @@
 <script>
   async function getCuaca() {
     try {
-      const res = await fetch("/bmkg/cuaca");
+      const res = await fetch("/prakiraan");
       const data = await res.json();
 
       if (data.prakiraan.length > 0) {
