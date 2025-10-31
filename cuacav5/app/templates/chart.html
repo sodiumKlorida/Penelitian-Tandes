@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forecast AQI</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+  <div class="container mx-auto py-10 px-6">
+    <h1 class="text-2xl font-bold mb-6 text-center">Prediksi Nilai AQI (7 Hari Ke Depan)</h1>
+
+    <!-- Tempat chart -->
+    <div id="chartContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+  </div>
+
+  <script>
+    async function loadForecastData() {
+      try {
+        const response = await fetch("/forecast/train");
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.error || "Gagal ambil data");
+
+        const data = result.data;
+        const container = document.getElementById("chartContainer");
+
+        // Clear container
+        container.innerHTML = "";
+
+        // Warna acak untuk tiap chart
+        const colors = [
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(54, 162, 235, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(153, 102, 255, 0.6)",
+          "rgba(255, 159, 64, 0.6)"
+        ];
+
+        let colorIndex = 0;
+
+        for (const [pollutant, values] of Object.entries(data)) {
+          const labels = values.map((_, i) => `Hari ${i + 1}`);
+          const aqiValues = values.map(v => v["nilai aqi"]);
+
+          // Buat elemen canvas untuk chart
+          const card = document.createElement("div");
+          card.className = "bg-white shadow-md rounded-2xl p-4";
+          card.innerHTML = `
+            <h2 class="font-semibold text-lg mb-2 text-center uppercase">${pollutant}</h2>
+            <canvas id="chart_${pollutant}" height="150"></canvas>
+          `;
+          container.appendChild(card);
+
+          const ctx = document.getElementById(`chart_${pollutant}`).getContext("2d");
+
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Nilai AQI",
+                  data: aqiValues,
+                  borderColor: colors[colorIndex % colors.length],
+                  backgroundColor: colors[colorIndex % colors.length],
+                  fill: false,
+                  tension: 0.3,
+                  pointRadius: 5,
+                  pointHoverRadius: 7,
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: {
+                  display: true,
+                  text: `${pollutant.toUpperCase()} - Prediksi AQI`,
+                  font: { size: 14 }
+                }
+              },
+              scales: {
+                y: { beginAtZero: true, title: { display: true, text: "Nilai AQI" } },
+                x: { title: { display: true, text: "Hari" } }
+              }
+            }
+          });
+
+          colorIndex++;
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Gagal memuat data forecast.");
+      }
+    }
+
+    loadForecastData();
+  </script>
+</body>
+</html>
